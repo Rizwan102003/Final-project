@@ -113,8 +113,10 @@ This project is licensed under the MIT License.
 
 ---
 
-## Contact
-For queries, contact the collaborators.
+## Collaborators
+- **Sk Md Rizwan** [Group Co-ordinator] - sk.mdrizwan.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-SkMdRizwan-blue?logo=linkedin)](https://www.linkedin.com/in/skmdrizwan/)
+- **Anish Das** - anish.das.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-AnishDas-blue?logo=linkedin)](https://www.linkedin.com/in/anish-das-73814a27a/)
+- **Swaraj Kumar Maity** - swaraj.kumarmaity.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-SwarajKumarMaity-blue?logo=linkedin)](https://in.linkedin.com/in/swaraj-kumar-maity-164320353)
 
 
 ---
