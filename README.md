@@ -114,9 +114,10 @@ This project is licensed under the MIT License.
 ---
 
 ## Collaborators
-- **Sk Md Rizwan** [Group Co-ordinator] - sk.mdrizwan.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-SkMdRizwan-blue?logo=linkedin)](https://www.linkedin.com/in/skmdrizwan/)
-- **Anish Das** - anish.das.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-AnishDas-blue?logo=linkedin)](https://www.linkedin.com/in/anish-das-73814a27a/)
-- **Swaraj Kumar Maity** - swaraj.kumarmaity.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-SwarajKumarMaity-blue?logo=linkedin)](https://in.linkedin.com/in/swaraj-kumar-maity-164320353)
+- **Sk Md Rizwan** [Group Co-ordinator] - sk.mdrizwan.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-Sk_Md_Rizwan-blue?logo=linkedin)](https://www.linkedin.com/in/skmdrizwan/)
+- **Anish Das** - anish.das.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-Anish_Das-blue?logo=linkedin)](https://www.linkedin.com/in/anish-das-73814a27a/)
+- **Swaraj Kumar Maity** - swaraj.kumarmaity.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-Swaraj_Kumar_Maity-blue?logo=linkedin)](https://in.linkedin.com/in/swaraj-kumar-maity-164320353)
+- **Samudra Mukhar Goswami** - samudra.mukhargoswami.ece26@heritageit.edu.in [![LinkedIn](https://img.shields.io/badge/LinkedIn-Samudra_Mukhar_Goswami-blue?logo=linkedin)](https://www.linkedin.com/in/samudra-goswami)
 
 
 ---
