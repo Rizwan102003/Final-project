@@ -6,6 +6,10 @@ app = FastAPI()
 
 MODEL_URL = "Samudraman i lost yo url"
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Image Prediction API"}
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     image_bytes = await file.read()
@@ -17,3 +21,4 @@ async def predict(file: UploadFile = File(...)):
         return response.json()
     else:
         return {"error": f"Model API returned {response.status_code}"}
+
