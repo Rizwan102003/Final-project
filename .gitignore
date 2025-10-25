@@ -1,2 +1,14 @@
 *.env
 **/arduino_secrets.h
+venv/
+__pycache__/
+*.pyc
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
