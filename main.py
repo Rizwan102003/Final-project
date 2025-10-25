@@ -6,6 +6,7 @@ app = FastAPI()
 
 MODEL_URL = "Samudraman i lost yo url"
 
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Image Prediction API"}

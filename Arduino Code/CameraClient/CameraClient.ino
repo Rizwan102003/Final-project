@@ -1,80 +1,45 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include "arduino_secrets.h"
+//
+// WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
+//            Ensure ESP32 Wrover Module or other board with PSRAM is selected
+//            Partial images will be transmitted if image exceeds buffer size
+//
+//            You must select partition scheme from the board menu that has at least 3MB APP space.
+//            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15 
+//            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
 // ===================
-// Camera model
+// Select camera model
 // ===================
-#define CAMERA_MODEL_AI_THINKER
+//#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
+// #define CAMERA_MODEL_ESP_EYE // Has PSRAM
+//#define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
+//#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
+//#define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
+#define CAMERA_MODEL_AI_THINKER // Has PSRAM
+//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
+//#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
+// ** Espressif Internal Boards **
+//#define CAMERA_MODEL_ESP32_CAM_BOARD
+//#define CAMERA_MODEL_ESP32S2_CAM_BOARD
+//#define CAMERA_MODEL_ESP32S3_CAM_LCD
+//#define CAMERA_MODEL_DFRobot_FireBeetle2_ESP32S3 // Has PSRAM
+//#define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
-#include "arduino_secrets.h"
 
 // ===========================
-// WiFi credentials
+// Enter your WiFi credentials
 // ===========================
 const char* ssid = WIFI_USERNAME;
 const char* password = WIFI_PASSWORD;
 
-// ===========================
-// TCP Receiver ESP32 IP & Port
-// ===========================
-const char* receiverIP = ESP32_RECEIVER_IP;   // ← Change this to your ESP32 receiver IP
-const uint16_t receiverPort = ESP32_RECEIVER_PORT;
-
 void startCameraServer();
 void setupLedFlash(int pin);
-
-// ===========================
-// Helper: Send image over TCP
-// ===========================
-void sendImageOverTCP(camera_fb_t * fb) {
-  WiFiClient client;
-  if (client.connect(receiverIP, receiverPort)) {
-    Serial.println("[TCP] Connected to receiver");
-
-    // Send the image size first (4 bytes)
-    uint32_t imgSize = fb->len;
-    client.write((uint8_t*)&imgSize, sizeof(imgSize));
-
-    // Send the image data
-    size_t sent = 0;
-    while (sent < fb->len) {
-      size_t chunkSize = client.write(fb->buf + sent, fb->len - sent);
-      if (chunkSize == 0) {
-        Serial.println("[TCP] Write failed");
-        break;
-      }
-      sent += chunkSize;
-    }
-
-    client.stop();
-    Serial.printf("[TCP] Image sent (%u bytes)\n", imgSize);
-  } else {
-    Serial.println("[TCP] Connection to receiver failed");
-  }
-}
-
-// ===========================
-// Capture and send task
-// ===========================
-void captureAndSendTask(void *pvParameters) {
-  for (;;) {
-    camera_fb_t * fb = esp_camera_fb_get();
-    if (!fb) {
-      Serial.println("[CAM] Frame capture failed");
-      vTaskDelay(2000 / portTICK_PERIOD_MS);
-      continue;
-    }
-
-    // Send the frame over TCP
-    sendImageOverTCP(fb);
-
-    // Return the frame buffer back to the driver
-    esp_camera_fb_return(fb);
-
-    // Adjust the delay to control send frequency
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-  }
-}
 
 void setup() {
   Serial.begin(115200);
@@ -102,22 +67,27 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.frame_size = FRAMESIZE_UXGA;
-  config.pixel_format = PIXFORMAT_JPEG;
+  config.pixel_format = PIXFORMAT_JPEG; // for streaming
+  //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 12;
   config.fb_count = 1;
-
-  if (config.pixel_format == PIXFORMAT_JPEG) {
-    if (psramFound()) {
+  
+  // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
+  //                      for larger pre-allocated frame buffer.
+  if(config.pixel_format == PIXFORMAT_JPEG){
+    if(psramFound()){
       config.jpeg_quality = 10;
       config.fb_count = 2;
       config.grab_mode = CAMERA_GRAB_LATEST;
     } else {
+      // Limit the frame size when PSRAM is not available
       config.frame_size = FRAMESIZE_SVGA;
       config.fb_location = CAMERA_FB_IN_DRAM;
     }
   } else {
+    // Best option for face detection/recognition
     config.frame_size = FRAMESIZE_240X240;
 #if CONFIG_IDF_TARGET_ESP32S3
     config.fb_count = 2;
@@ -137,12 +107,14 @@ void setup() {
   }
 
   sensor_t * s = esp_camera_sensor_get();
+  // initial sensors are flipped vertically and colors are a bit saturated
   if (s->id.PID == OV3660_PID) {
-    s->set_vflip(s, 1);
-    s->set_brightness(s, 1);
-    s->set_saturation(s, -2);
+    s->set_vflip(s, 1); // flip it back
+    s->set_brightness(s, 1); // up the brightness just a bit
+    s->set_saturation(s, -2); // lower the saturation
   }
-  if (config.pixel_format == PIXFORMAT_JPEG) {
+  // drop down frame size for higher initial frame rate
+  if(config.pixel_format == PIXFORMAT_JPEG){
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
@@ -155,6 +127,7 @@ void setup() {
   s->set_vflip(s, 1);
 #endif
 
+// Setup LED FLash if LED pin is defined in camera_pins.h
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
@@ -169,26 +142,14 @@ void setup() {
   Serial.println("");
   Serial.println("WiFi connected");
 
-  // Start the existing web server (untouched)
   startCameraServer();
 
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
-  // Create a FreeRTOS task for capturing and sending images over TCP
-  xTaskCreatePinnedToCore(
-    captureAndSendTask,    // task function
-    "CaptureAndSendTask",  // name
-    8192,                  // stack size
-    NULL,                  // parameter
-    1,                     // priority
-    NULL,                  // task handle
-    1                      // run on core 1
-  );
 }
 
 void loop() {
-  // Do nothing. Everything else runs in background tasks
+  // Do nothing. Everything is done in another task by the web server
   delay(10000);
 }
