@@ -2,3 +2,10 @@ fastapi
 uvicorn
 requests
 python-multipart
+tensorflow
+numpy
+pandas
+matplotlib
+seaborn
+sk-learn
+python-dotenv
