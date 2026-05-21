@@ -17,4 +17,12 @@ Thumbs.db
 */.h
 
 Dataset/crop_disease_detection/
-Weights/
+Weights/old_weights
+Dataset-20260508T131931Z-3-001/
+*/.zip
+*.zip
+Dataset-20260508T131931Z-3-001
+Curated_Maize_Dataset
+Curated_Tomato_Dataset
+*.7z
+*/.7z

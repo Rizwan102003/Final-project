@@ -14,6 +14,9 @@
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
+
+#define LED_PIN 4
+#define LED_LEDC_CHANNEL 2
 #include "img_converters.h"
 #include "fb_gfx.h"
 #include "esp32-hal-ledc.h"
@@ -26,7 +29,7 @@
 
 // Face Detection will not work on boards without (or with disabled) PSRAM
 #ifdef BOARD_HAS_PSRAM
-#define CONFIG_ESP_FACE_DETECT_ENABLED 1
+#define CONFIG_ESP_FACE_DETECT_ENABLED 0
 // Face Recognition takes upward from 15 seconds per frame on chips other than ESP32S3
 // Makes no sense to have it enabled for them
 #if CONFIG_IDF_TARGET_ESP32S3
@@ -279,18 +282,23 @@ static int run_face_recognition(fb_data_t *fb, std::list<dl::detect::result_t> *
 #endif
 
 #if CONFIG_LED_ILLUMINATOR_ENABLED
+
+
+
 void enable_led(bool en)
-{ // Turn LED On or Off
+{
     int duty = en ? led_duty : 0;
+
     if (en && isStreaming && (led_duty > CONFIG_LED_MAX_INTENSITY))
     {
         duty = CONFIG_LED_MAX_INTENSITY;
     }
-    ledcWrite(LED_LEDC_CHANNEL, duty);
-    //ledc_set_duty(CONFIG_LED_LEDC_SPEED_MODE, CONFIG_LED_LEDC_CHANNEL, duty);
-    //ledc_update_duty(CONFIG_LED_LEDC_SPEED_MODE, CONFIG_LED_LEDC_CHANNEL);
+
+    ledcWrite(LED_PIN, duty);
+
     log_i("Set LED intensity to %d", duty);
 }
+
 #endif
 
 static esp_err_t bmp_handler(httpd_req_t *req)
@@ -1383,11 +1391,10 @@ void startCameraServer()
     }
 }
 
-void setupLedFlash(int pin) 
+void setupLedFlash(int pin)
 {
     #if CONFIG_LED_ILLUMINATOR_ENABLED
-    ledcSetup(LED_LEDC_CHANNEL, 5000, 8);
-    ledcAttachPin(pin, LED_LEDC_CHANNEL);
+    ledcAttach(pin, 5000, 8);
     #else
     log_i("LED flash is disabled -> CONFIG_LED_ILLUMINATOR_ENABLED = 0");
     #endif
